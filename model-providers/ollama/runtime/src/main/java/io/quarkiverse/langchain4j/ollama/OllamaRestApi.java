@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -80,8 +81,8 @@ public interface OllamaRestApi {
             try {
                 return context.proceed();
             } catch (ClientWebApplicationException e) {
-                if (e.getCause() instanceof JsonParseException) {
-                    if (e.getResponse().getStatus() == 200) {
+                if (e.getCause() instanceof JsonParseException || e.getCause() instanceof JsonMappingException) {
+                    if (e.getResponse().getStatus() == 200 || e.getResponse().getStatus() == 400) {
                         Object invokedMethod = context.getProperty("org.eclipse.microprofile.rest.client.invokedMethod");
                         if ((invokedMethod != null) && invokedMethod.toString().contains("OllamaRestApi.streamingChat")) {
                             InputStream is = context.getInputStream();
